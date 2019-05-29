@@ -1,62 +1,94 @@
-#include <ArduinoJson.h>
+/*
+    Wireless Serial using UDP ESP8266
+    Hardware: NodeMCU
+    Circuits4you.com
+    2018
+    Slave Board connects to Access Point
+*/
+char rd_light_pd;
+char gr_light_pd;
+char rd_light_tr;
+char gr_light_tr;
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
 
-String gr_light_tr;
-String rd_light_tr;
-String gr_light_pd;
-String rd_light_pd;
-String str;
-const String ID = "Node Wifi";
-const String Password = "make@banaao";
+const char *ssid = "Node";
+const char *pass = "test123"; 
+char *var2;
+unsigned int localPort = 2000; // local port to listen for UDP packets
 
-#include <ESP8266WiFi.h>;
-#include <ESP8266WebServer.h>
-#include <ESP8266HTTPClient.h>
+IPAddress ServerIP(192,168,4,1);
+IPAddress ClientIP(192,168,4,2);
 
+// A UDP instance to let us send and receive packets over UDP
+WiFiUDP udp;
+
+char packetBuffer[9];   //Where we get the UDP data
+//======================================================================
+//                Setup
+//======================================================================
 void setup()
 {
-  Serial.begin(9600);
-  WiFi.begin(ID, Password); 
-   
+    Serial.begin(9600);
+    Serial.println();
+
+    WiFi.begin(ssid, pass);   //Connect to access point
+  
+    Serial.println("");
+
+  // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
   Serial.println("");
   Serial.print("Connected to ");
-  Serial.println(ID);
+  Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+    
+    //Start UDP
+    Serial.println("Starting UDP");
+    udp.begin(localPort);
+    Serial.print("Local port: ");
+    Serial.println(udp.localPort());
 }
-
+//======================================================================
+//                MAIN LOOP
+//======================================================================
 void loop()
 {
-  if (WiFi.status() == WL_CONNECTED) { //Check WiFi connection status
- 
-HTTPClient http;  //Declare an object of class HTTPClient
- 
-http.begin("http://jsonplaceholder.typicode.com/users/1");  //Specify request destination
-int httpCode = http.GET();                                                                  //Send the request
- 
-if (httpCode > 0) { //Check the returning code
- 
-str = http.getString();   //Get the request response payload
-Serial.println(str);                     //Print the response payload
- 
+    int cb = udp.parsePacket();
+    if (!cb) 
+    {
+      //If serial data is recived send it to UDP
+           // We've received a UDP packet, send it to serial
+      udp.read(packetBuffer, 1); // read the packet into the buffer, we are reading only one byte
+      var2=packetBuffer;
+      Serial.print("Before:");
+      Serial.println(var2);
+      padestrian(var2[0]);
+      
+      Serial.print("After:");
+      Serial.println(var2);
+        udp.beginPacket(ServerIP, 2000);  //Send Data to Master unit
+        //Send UDP requests are to port 2000
+        
+        char a[1];
+        a[0]=rd_light_tr; //Serial Byte Read
+        udp.write(a,1); //Send one byte to ESP8266 
+        udp.endPacket();
+        
+    }
 }
- 
-http.end();   //Close connection
- 
-}
- 
-  padestrian(str); 
-}
+//=======================================================================
 
 
-void padestrian(String rd_light_tr)
+void padestrian(char rd_light_tr)
 {
  if(rd_light_tr=='1')
  {
-  delay(1000);
+  delay(10000);
   gr_light_pd='1';
   //digitalWrite(gr_light_pd,HIGH);
   rd_light_pd='0' ;
@@ -69,7 +101,7 @@ void padestrian(String rd_light_tr)
  }
  if(rd_light_tr=='0')
  {
-  delay(1000)
+  delay(10000);
   gr_light_pd='0';
   //digitalWrite(gr_light_pd,LOW);
   rd_light_pd='1' ;
@@ -79,5 +111,5 @@ void padestrian(String rd_light_tr)
   rd_light_tr='1' ;
   //digitalWrite(rd_light_tr,HIGH);
 //   server.send(200, "text/html", rd_light_tr); 
- }
+}
 }
