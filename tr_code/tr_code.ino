@@ -1,29 +1,20 @@
-/*
-    Wireless Serial using UDP ESP8266
-    Hardware: NodeMCU
-    Circuits4you.com
-    2018
-    UDP Broadcast multi esp to esp communication
-*/
+
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
 const char *ssid = "hpts";
 const char *pass = "1236699qwerty"; 
+char p ;
+unsigned int localPort = 2000; 
+int flag=0;
+IPAddress SendIP(192,168,43,255); 
 
-unsigned int localPort = 2000; // local port to listen for UDP packets
-
-IPAddress SendIP(192,168,43,255); //UDP Broadcast IP data sent to all devicess on same network
-
-// A UDP instance to let us send and receive packets over UDP
 WiFiUDP udp;
 
-char packetBuffer[9];   //Where we get the UDP data
-//======================================================================
-//                               Setup
-//=======================================================================
+char packetBuffer[9];   
 void setup()
 {
+  WiFi.mode(WIFI_STA);
     Serial.begin(9600);
     Serial.println();
 
@@ -48,29 +39,29 @@ void setup()
     Serial.print("Local port: ");
     Serial.println(udp.localPort());
 }
-//======================================================================
-//                MAIN LOOP
-//======================================================================
+
 void loop()
 {
-    int cb = udp.parsePacket();
-    if (!cb) 
+    if(flag==0)
     {
-      //If serial data is recived send it to UDP
-      if(Serial.available()==0)
-        {
-        udp.beginPacket(SendIP, 2000);  //Send Data to Master unit
-        //Send UDP requests are to port 2000
+      p='f';
+      udp.beginPacket(SendIP, 2000); 
         
-        udp.write(); //Send one byte to ESP8266 
+        udp.write(p); 
         udp.endPacket();
-        }
+        Serial.println(p);
+        delay(3000);
+       flag=1;
     }
-    else {
-      // We've received a UDP packet, send it to serial
-      udp.read(packetBuffer, 1); // read the packet into the buffer, we are reading only one byte
-      Serial.print(packetBuffer);
-      delay(20);
+    if (flag==1) 
+    {
+      p='o';
+        udp.beginPacket(SendIP, 2000);
+        
+        udp.write(p);
+        udp.endPacket();
+        Serial.println(p);
+        delay(3000);
+        flag=0;
     }
 }
-//=======================================================================

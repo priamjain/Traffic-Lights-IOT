@@ -1,23 +1,9 @@
-
-  char rd_light_pd;
+char rd_light_pd;
 char gr_light_pd;
 char rd_light_tr;
 char gr_light_tr;
-int led = 4;
-/*
-    Wireless Serial using UDP ESP8266
-    Hardware: NodeMCU
-    Circuits4you.com
-    2018
-    UDP Broadcast multi esp to esp communication
-*/
-/*
-    Wireless Serial using UDP ESP8266
-    Hardware: NodeMCU
-    Circuits4you.com
-    2018
-    UDP Broadcast multi esp to esp communication
-*/
+int led = 2;
+
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
@@ -31,12 +17,11 @@ IPAddress SendIP(192,168,43,255); //UDP Broadcast IP data sent to all devicess o
 // A UDP instance to let us send and receive packets over UDP
 WiFiUDP udp;
 
-char packetBuffer[9];   //Where we get the UDP data
-//======================================================================
-//                               Setup
-//=======================================================================
+char packetBuffer[9];   
 void setup()
 {
+  WiFi.mode(WIFI_STA);
+  pinMode(led,OUTPUT);
     Serial.begin(9600);
     Serial.println();
 
@@ -61,31 +46,32 @@ void setup()
     Serial.print("Local port: ");
     Serial.println(udp.localPort());
 }
-//======================================================================
-//                MAIN LOOP
-//======================================================================
+
 void loop()
 {
-    int cb = udp.parsePacket();
-    if (!cb) 
-    {
-      //If serial data is recived send it to UDP
-      if(Serial.available()>0)
-        {
-        udp.beginPacket(SendIP, 2000);  //Send Data to Master unit
-        //Send UDP requests are to port 2000
-        
-        char a[1];
-        a[0]=char(Serial.read()); //Serial Byte Read
-        udp.write(a,1); //Send one byte to ESP8266 
-        udp.endPacket();
-        }
-    }
-    else {
-      // We've received a UDP packet, send it to serial
-      udp.read(packetBuffer, 1); // read the packet into the buffer, we are reading only one byte
-      Serial.print(packetBuffer);
-      delay(20);
-    }
+    
+      
+  int packetSize = udp.parsePacket();
+  if(packetSize)
+  {
+    udp.read(packetBuffer,UDP_TX_PACKET_MAX_SIZE);
+    char a = packetBuffer[0];
+    Serial.println(a);
+    lights(a);
+    
+    
 }
-//=======================================================================
+}
+
+void lights(char a)
+{
+  if (a=='o')
+  {
+    digitalWrite(led,HIGH);
+    
+  }
+  else if(a=='f')
+  {
+    digitalWrite(led,LOW);
+  }
+}
