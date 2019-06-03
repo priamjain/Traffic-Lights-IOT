@@ -2,11 +2,13 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
-const char *ssid = "hpts";
-const char *pass = "1236699qwerty"; 
+const char *ssid = "Traffic Light wifi";
+const char *pass = "$AqdbJK*%ElCa%#yXVUubLc595Jx@E4MP99dkxsRuff!ejkHCd"; 
 char p ;
 unsigned int localPort = 2000; 
 int flag=0;
+int red_light=16;
+int green_light=5;
 IPAddress SendIP(192,168,43,255); 
 
 WiFiUDP udp;
@@ -14,6 +16,8 @@ WiFiUDP udp;
 char packetBuffer[9];   
 void setup()
 {
+  pinMode(green_light,OUTPUT);
+  pinMode(red_light,OUTPUT);
   WiFi.mode(WIFI_STA);
     Serial.begin(9600);
     Serial.println();
@@ -44,24 +48,43 @@ void loop()
 {
     if(flag==0)
     {
-      p='f';
+      p='R';
       udp.beginPacket(SendIP, 2000); 
         
         udp.write(p); 
         udp.endPacket();
         Serial.println(p);
+        function();
         delay(3000);
        flag=1;
+       function();
     }
-    if (flag==1) 
+    
+    else if (flag==1) 
     {
-      p='o';
+      p='G';
         udp.beginPacket(SendIP, 2000);
         
         udp.write(p);
         udp.endPacket();
         Serial.println(p);
+        function();
         delay(3000);
         flag=0;
     }
+    
+}
+
+void function()
+{
+  if (p=='R')
+  {
+    digitalWrite(red_light,HIGH);
+    digitalWrite(green_light,LOW);
+  }
+  else if (p=='G')
+  {
+    digitalWrite(red_light,LOW);
+    digitalWrite(green_light,HIGH);
+  }
 }

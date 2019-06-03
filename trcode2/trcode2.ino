@@ -4,7 +4,7 @@ int green_light=5;
 #include <WiFiUdp.h>;
 
 const char *ssid = "Traffic Light wifi";
-const char *pass = "$AqdbJK*%ElCa%#yXVUubLc595Jx@E4MP99dkxsRuff!ejkHCd";  
+const char *pass = "$AqdbJK*%ElCa%#yXVUubLc595Jx@E4MP99dkxsRuff!ejkHCd"; 
 char p;
 unsigned int localPort = 2000; // local port to listen for UDP packets
 
@@ -64,12 +64,12 @@ void function()
 {
   if (p=='R')
   {
-    digitalWrite(red_light,LOW);
-    digitalWrite(green_light,HIGH);
+    digitalWrite(red_light,HIGH);
+    digitalWrite(green_light,LOW);
   }
   else if (p=='G')
   {
-    digitalWrite(red_light,HIGH);
-    digitalWrite(green_light,LOW);
+    digitalWrite(red_light,LOW);
+    digitalWrite(green_light,HIGH);
   }
 }
