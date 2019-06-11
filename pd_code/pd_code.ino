@@ -1,10 +1,11 @@
 int red_light=16;
 int green_light=5;
+int button=4;
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>;
 
-const char *ssid = "Traffic Light wifi";
-const char *pass = "$AqdbJK*%ElCa%#yXVUubLc595Jx@E4MP99dkxsRuff!ejkHCd";  
+const char *ssid = "hpts";
+const char *pass = "1234567qwerty";   
 char p;
 unsigned int localPort = 2000; // local port to listen for UDP packets
 
@@ -15,7 +16,7 @@ WiFiUDP udp;
 
 char packetBuffer[9];   
 void setup()
-{
+{ pinMode(button,OUTPUT);
   pinMode(green_light,OUTPUT);
   pinMode(red_light,OUTPUT);
   WiFi.mode(WIFI_STA);
@@ -36,18 +37,24 @@ void setup()
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-    
+   udp.begin(localPort); 
     //Start UDP
-    Serial.println("Starting UDP");
-    udp.begin(localPort);
-    Serial.print("Local port: ");
-    Serial.println(udp.localPort());
 }
 
 void loop()
 {
-    
-      
+  
+  int temp =digitalRead(button);
+  if(temp==HIGH)
+  {
+    Serial.println("I");
+    udp.beginPacket(SendIP, 2000); 
+        
+        udp.write("I"); 
+        udp.endPacket();
+   }
+   else
+  { 
   int packetSize = udp.parsePacket();
   if(packetSize)
   {
@@ -55,9 +62,8 @@ void loop()
     p = packetBuffer[0];
     Serial.println(p);
     function();
-    
-    
-}
+    }
+  }
 }
 
 void function()
@@ -71,5 +77,29 @@ void function()
   {
     digitalWrite(red_light,HIGH);
     digitalWrite(green_light,LOW);
+  }
+  else if (p=='Q')
+  {
+    digitalWrite(green_light,LOW);
+    int i;
+    for(i=0;i<5;i++)
+    {
+    digitalWrite(red_light,HIGH);
+    delay(1000);
+    digitalWrite(red_light,LOW);
+    delay(1000);
+    }
+  }
+    else if (p=='W')
+  {
+    digitalWrite(red_light,LOW);
+    int i;
+    for(i=0;i<5;i++)
+    {
+    digitalWrite(green_light,HIGH);
+    delay(1000);
+    digitalWrite(green_light,LOW);
+    delay(1000);
+    }
   }
 }

@@ -3,8 +3,8 @@ int green_light=5;
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>;
 
-const char *ssid = "Traffic Light wifi";
-const char *pass = "$AqdbJK*%ElCa%#yXVUubLc595Jx@E4MP99dkxsRuff!ejkHCd"; 
+const char *ssid = "hpts";
+const char *pass = "1234567qwerty"; 
 char p;
 unsigned int localPort = 2000; // local port to listen for UDP packets
 
@@ -71,5 +71,29 @@ void function()
   {
     digitalWrite(red_light,LOW);
     digitalWrite(green_light,HIGH);
+  }
+  else if (p=='Q')
+  {
+    digitalWrite(red_light,LOW);
+    int i;
+    for(i=0;i<5;i++)
+    {
+    digitalWrite(green_light,HIGH);
+    delay(1000);
+    digitalWrite(green_light,LOW);
+    delay(1000);
+    }
+  }
+    else if (p=='W')
+  {
+    digitalWrite(green_light,LOW);
+    int i;
+    for(i=0;i<5;i++)
+    {
+    digitalWrite(red_light,HIGH);
+    delay(1000);
+    digitalWrite(red_light,LOW);
+    delay(1000);
+    }
   }
 }

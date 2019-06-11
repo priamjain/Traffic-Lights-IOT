@@ -6,7 +6,7 @@ void setup()
   Serial.println();
 
   Serial.print("Setting soft-AP ... ");
-  boolean result = WiFi.softAP("Traffic Light wifi", "$AqdbJK*%ElCa%#yXVUubLc595Jx@E4MP99dkxsRuff!ejkHCd");
+  boolean result = WiFi.softAP("hpts", "1234567qwerty");
   if(result == true)
   {
     Serial.println("Ready");
